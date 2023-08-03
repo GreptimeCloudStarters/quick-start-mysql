@@ -5,5 +5,5 @@ This quick start script collects system metrics, such as CPU and memory usage, a
 Use the following command to start it:
 
 ```shell
-chmod +x quick-start.sh && ./quick-start.sh -h <host> -d <dbname> -u <username> -p <password>
+bash quick-start.sh -h <host> -d <dbname> -u <username> -p <password>
 ```
