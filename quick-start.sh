@@ -1,7 +1,5 @@
 #!/bin/bash
 
-version="1.0.0"
-
 generate_data()
 {
 	unameOut="$(uname -s)"
