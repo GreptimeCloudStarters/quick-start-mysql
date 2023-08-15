@@ -65,7 +65,7 @@ mysql --ssl-mode=REQUIRED -u $username -p$password -h $host -P 4002 -A $database
 echo Sending metrics to GreptimeCloud...
 while true
 do
-	sleep 2
+	sleep 5
 	mysql --ssl-mode=REQUIRED -u $username -p$password -h $host -P 4002 -A $database \
         -e "INSERT INTO monitor(host, user_cpu, sys_cpu, idle_cpu, memory) VALUES $(generate_data);"
 done
