@@ -38,34 +38,28 @@ do
 done
 
 if [ -z "$host" ]; then
-	echo "-h Host is required"
-	exit 1
+	host="127.0.0.1"
 fi
 
 if [ -z "$database" ]; then
-	echo "-d Database is required"
-	exit 1
+	database="public"
 fi
 
-if [ -z "$username" ]; then
-	echo "-u Username is required"
-	exit 1
-fi
-
-if [ -z "$password" ]; then
-	echo "-p Password is required"
-	exit 1
+if [ -z "$username" ] && [ -z "$password" ]; then
+    ssl_mode="DISABLED"
+else
+    ssl_mode="REQUIRED"
 fi
 
 # Create table
-mysql --ssl-mode=REQUIRED -u $username -p$password -h $host -P 4002 -A $database \
+mysql --ssl-mode=$ssl_mode -u $username -p$password -h $host -P 4002 -A $database \
     -e "CREATE TABLE IF NOT EXISTS monitor (host STRING, user_cpu DOUBLE, sys_cpu DOUBLE, idle_cpu DOUBLE, memory DOUBLE, ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP, TIME INDEX(ts), PRIMARY KEY(host));"
 
 # Insert metrics
-echo Sending metrics to GreptimeCloud...
+echo Sending metrics to Greptime...
 while true
 do
 	sleep 5
-	mysql --ssl-mode=REQUIRED -u $username -p$password -h $host -P 4002 -A $database \
+	mysql --ssl-mode=$ssl_mode -u $username -p$password -h $host -P 4002 -A $database \
         -e "INSERT INTO monitor(host, user_cpu, sys_cpu, idle_cpu, memory) VALUES $(generate_data);"
 done
