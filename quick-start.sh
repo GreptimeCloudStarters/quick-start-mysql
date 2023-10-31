@@ -27,13 +27,15 @@ generate_data()
 EOF
 }
 
-while getopts h:d:u:p: flag
+while getopts h:d:u:p:s:P flag
 do
 	case "${flag}" in
 		h) host=${OPTARG};;
 		d) database=${OPTARG};;
 		u) username=${OPTARG};;
 		p) password=${OPTARG};;
+		s) ssl_mode=${OPTARG};;
+		P) port=${OPTARG};;
 	esac
 done
 
@@ -45,14 +47,16 @@ if [ -z "$database" ]; then
 	database="public"
 fi
 
-if [ -z "$username" ] && [ -z "$password" ]; then
-    ssl_mode="DISABLED"
-else
-    ssl_mode="REQUIRED"
+if [ -z "$port" ]; then
+	port=4002
+fi
+
+if [ -z "$ssl_mode" ]; then
+	ssl_mode="REQUIRED"
 fi
 
 # Create table
-mysql --ssl-mode=$ssl_mode -u $username -p$password -h $host -P 4002 -A $database \
+mysql --ssl-mode=$ssl_mode -u $username -p$password -h $host -P $port -A $database \
     -e "CREATE TABLE IF NOT EXISTS monitor (host STRING, user_cpu DOUBLE, sys_cpu DOUBLE, idle_cpu DOUBLE, memory DOUBLE, ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP, TIME INDEX(ts), PRIMARY KEY(host));"
 
 # Insert metrics
@@ -60,6 +64,6 @@ echo Sending metrics to Greptime...
 while true
 do
 	sleep 5
-	mysql --ssl-mode=$ssl_mode -u $username -p$password -h $host -P 4002 -A $database \
+	mysql --ssl-mode=$ssl_mode -u $username -p$password -h $host -P $port -A $database \
         -e "INSERT INTO monitor(host, user_cpu, sys_cpu, idle_cpu, memory) VALUES $(generate_data);"
 done
