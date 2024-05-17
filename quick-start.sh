@@ -22,8 +22,9 @@ generate_data()
 			idle_cpu_util=$(shuf -i 70-80 -n 1)
 			mem_util=$(shuf -i 50-60 -n 1)
 	esac
+	now=$(($(date +%s)*1000))
 	cat <<EOF
-    ("$unameOut",$user_cpu_util,$sys_cpu_util,$idle_cpu_util,$mem_util)
+    ("$unameOut",$user_cpu_util,$sys_cpu_util,$idle_cpu_util,$mem_util,$now)
 EOF
 }
 
@@ -65,5 +66,5 @@ while true
 do
 	sleep 5
 	mysql --ssl-mode=$ssl_mode -u $username -p$password -h $host -P $port -A $database \
-        -e "INSERT INTO monitor(host, user_cpu, sys_cpu, idle_cpu, memory) VALUES $(generate_data);"
+        -e "INSERT INTO monitor(host, user_cpu, sys_cpu, idle_cpu, memory, ts) VALUES $(generate_data);"
 done
