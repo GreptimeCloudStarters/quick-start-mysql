@@ -22,7 +22,7 @@ generate_data()
 			idle_cpu_util=$(shuf -i 70-80 -n 1)
 			mem_util=$(shuf -i 50-60 -n 1)
 	esac
-	now=$(($(date +%s)*1000))
+	now=$(($(date +%s)*1000000000))
 	cat <<EOF
     ("$unameOut",$user_cpu_util,$sys_cpu_util,$idle_cpu_util,$mem_util,$now)
 EOF
@@ -58,7 +58,7 @@ fi
 
 # Create table
 mysql --ssl-mode=$ssl_mode -u $username -p$password -h $host -P $port -A $database \
-    -e "CREATE TABLE IF NOT EXISTS monitor (host STRING, user_cpu DOUBLE, sys_cpu DOUBLE, idle_cpu DOUBLE, memory DOUBLE, ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP, TIME INDEX(ts), PRIMARY KEY(host));"
+    -e "CREATE TABLE IF NOT EXISTS monitor (host STRING, user_cpu DOUBLE, sys_cpu DOUBLE, idle_cpu DOUBLE, memory DOUBLE, ts TIMESTAMPNANOSECOND DEFAULT CURRENT_TIMESTAMP, TIME INDEX(ts), PRIMARY KEY(host));"
 
 # Insert metrics
 echo Sending metrics to Greptime...
